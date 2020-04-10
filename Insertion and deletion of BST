@@ -1,0 +1,247 @@
+// C program for insertion and deletion of BST.
+# include <stdio.h>
+# include <malloc.h>
+struct node
+{
+	int data;
+	struct node *leftchild;
+	struct node *rightchild;
+}*root;
+void find(int item,struct node **par,struct node **loc)
+{
+	struct node *ptr,*ptrsave;
+    if(root==NULL)  
+	{
+		*par=NULL;
+		*loc=NULL;
+		return;
+	}
+	if(item==root->data) 
+	{
+		*loc=root;
+		*par=NULL;
+		return;
+	}
+    if(item<root->data)
+		ptr=root->leftchild;
+	else
+		ptr=root->rightchild;
+	ptrsave=root;
+    while(ptr!=NULL)
+	{
+		if(item==ptr->data)
+		{       *loc=ptr;
+			*par=ptrsave;
+			return;
+		}
+		ptrsave=ptr;
+		if(item<ptr->data)
+			ptr=ptr->leftchild;
+		else
+			ptr=ptr->rightchild;
+	 }
+	 *loc=NULL;   
+	 *par=ptrsave;
+}
+void insert(int item)
+{       struct node *tmp,*parent,*location;
+	find(item,&parent,&location);
+	if(location!=NULL)
+	{
+		printf("Item was already present");
+		return;
+	}
+    tmp=(struct node *)malloc(sizeof(struct node));
+	tmp->data=item;
+	tmp->leftchild=NULL;
+	tmp->rightchild=NULL;
+    if(parent==NULL)
+		root=tmp;
+	else
+		if(item<parent->data)
+			parent->leftchild=tmp;
+		else
+			parent->rightchild=tmp;
+}
+void case_a(struct node *par,struct node *loc )
+{
+	if(par==NULL) 
+		root=NULL;
+	else
+		if(loc==par->leftchild)
+			par->leftchild=NULL;
+		else
+			par->rightchild=NULL;
+}
+void case_b(struct node *par,struct node *loc)
+{
+	struct node *child;
+    if(loc->leftchild!=NULL) 
+		child=loc->leftchild;
+	else               
+		child=loc->rightchild;
+
+	if(par==NULL )  
+		root=child;
+	else
+		if( loc==par->leftchild)   
+			par->leftchild=child;
+		else                  
+			par->rightchild=child;
+}
+void case_c(struct node *par,struct node *loc)
+{
+	struct node *ptr,*ptrsave,*suc,*parsuc;
+    ptrsave=loc;
+	ptr=loc->rightchild;
+	while(ptr->leftchild!=NULL)
+	{
+		ptrsave=ptr;
+		ptr=ptr->leftchild;
+	}
+	suc=ptr;
+	parsuc=ptrsave;
+    if(suc->leftchild==NULL && suc->rightchild==NULL)
+		case_a(parsuc,suc);
+	else
+		case_b(parsuc,suc);
+    if(par==NULL) 
+		root=suc;
+	else
+		if(loc==par->leftchild)
+			par->leftchild=suc;
+		else
+			par->rightchild=suc;
+
+	suc->leftchild=loc->leftchild;
+	suc->rightchild=loc->rightchild;
+}
+int del(int item)
+{
+	struct node *parent,*location;
+	if(root==NULL)
+	{
+		printf("Tree is empty");
+		return 0;
+	}
+
+	find(item,&parent,&location);
+	if(location==NULL)
+	{
+		printf("Item is not present in the tree");
+		return 0;
+	}
+
+	if(location->leftchild==NULL && location->rightchild==NULL)
+		case_a(parent,location);
+	if(location->leftchild!=NULL && location->rightchild==NULL)
+		case_b(parent,location);
+	if(location->leftchild==NULL && location->rightchild!=NULL)
+		case_b(parent,location);
+	if(location->leftchild!=NULL && location->rightchild!=NULL)
+		case_c(parent,location);
+	free(location);
+}
+int preorder(struct node *ptr)
+{
+	if(root==NULL)
+	{
+		printf("Tree is empty");
+		return 0;
+	}
+	if(ptr!=NULL)
+	{
+		printf("%d  ",ptr->data);
+		preorder(ptr->leftchild);
+		preorder(ptr->rightchild);
+	}
+}
+void inorder(struct node *ptr)
+{
+	if(root==NULL)
+	{
+		printf("Tree is empty");
+		return;
+	}
+	if(ptr!=NULL)
+	{
+		inorder(ptr->leftchild);
+		printf("%d  ",ptr->data);
+		inorder(ptr->rightchild);
+	}
+}
+void postorder(struct node *ptr)
+{
+	if(root==NULL)
+	{
+		printf("Tree is empty");
+		return;
+	}
+	if(ptr!=NULL)
+	{
+		postorder(ptr->leftchild);
+		postorder(ptr->rightchild);
+		printf("%d  ",ptr->data);
+	}
+}
+void display(struct node *ptr,int level)
+{
+	int i;
+	if ( ptr!=NULL )
+	{
+		display(ptr->rightchild, level+1);
+		printf("\n");
+		for (i = 0; i < level; i++)
+			printf("    ");
+		printf("%d", ptr->data);
+		display(ptr->leftchild, level+1);
+	}
+}
+int main()
+{
+	int choice,number;
+	root=NULL;
+	while(1)
+	{
+		printf("\n");
+		printf("Insert\n");
+		printf("Delete\n");
+		printf("Inorder Traversal\n");
+		printf("Preorder Traversal\n");
+		printf("Postorder Traversal\n");
+		printf("Display\n");
+		printf("Quit\n");
+		printf("Enter your choice : ");
+		scanf("%d",&choice);
+
+		switch(choice)
+		{
+		 case 1:
+			printf("Enter the number to be inserted : ");
+			scanf("%d",&number);
+			insert(number);
+			break;
+		 case 2:
+			printf("Enter the number to be deleted : ");
+			scanf("%d",&number);
+			del(number);
+			break;
+		 case 3:
+			inorder(root);
+			break;
+		 case 4:
+			preorder(root);
+			break;
+		 case 5:
+			postorder(root);
+			break;
+		 case 6:
+			display(root,1);
+			break;
+		 case 7:
+            break;
+		 default:
+			printf("Wrong choice\n");
+		}
+	}
+}
